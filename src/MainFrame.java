@@ -1,3 +1,5 @@
+import UI.RoundedButton;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
@@ -5,22 +7,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainFrame extends JFrame {
-    private final int width;
-    private final int height;
 
     private JButton createButton(String text) {
-        JButton button = new JButton(text);
+        JButton button = new RoundedButton(text, 20, new Color(0xBBBBBB));
         button.setPreferredSize(new Dimension(527 , 108));
         button.setFont(new Font("Arial", Font.PLAIN, 32));
-        button.setBorder(new RoundedBorder(20));
-        button.setContentAreaFilled(false);
-        button.setFocusPainted(false);
         return button;
     }
 
     public MainFrame(int width, int height) {
-        this.width = width;
-        this.height = height;
         setTitle("Connect 4");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(new Dimension(width, height));
@@ -58,22 +53,4 @@ public class MainFrame extends JFrame {
         getContentPane().add(quitBtn);
 
     }
-
-    private record RoundedBorder(int radius) implements Border {
-
-
-        public Insets getBorderInsets(Component c) {
-                return new Insets(this.radius + 1, this.radius + 1, this.radius + 2, this.radius);
-            }
-
-
-            public boolean isBorderOpaque() {
-                return true;
-            }
-
-
-            public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-                g.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
-            }
-        }
 }

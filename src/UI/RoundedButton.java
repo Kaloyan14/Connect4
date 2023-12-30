@@ -16,6 +16,7 @@ public class RoundedButton extends JButton {
         this.factor = 0.9;
         this.lbl = new JLabel(text);
         setOpaque(false);
+        setContentAreaFilled(false);
         setBorder(new RoundedBorder(radius, new Color(0x777777)));
         SpringLayout layout = new SpringLayout();
         setLayout(layout);

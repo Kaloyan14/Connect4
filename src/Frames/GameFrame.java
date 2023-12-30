@@ -4,12 +4,17 @@ import UI.RoundedBorder;
 import UI.RoundedButton;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
+
+import static Frames.Utils.printBoard;
 
 public class GameFrame extends JFrame {
     private final boolean singleplayer;
+    private static GameManager gameManager;
     public GameFrame(int width, int height, boolean singleplayer) {
         this.singleplayer = singleplayer;
+        gameManager = new GameManager();
         setTitle("Connect 4");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(new Dimension(width, height));
@@ -20,7 +25,6 @@ public class GameFrame extends JFrame {
 
         ImageIcon boardIcon = new ImageIcon("resources/board.png");
         JLabel boardLbl = new JLabel(boardIcon);
-
         layout.putConstraint(SpringLayout.NORTH, boardLbl, 150, SpringLayout.NORTH, getContentPane());
         layout.putConstraint(SpringLayout.EAST, boardLbl, -264, SpringLayout.EAST, getContentPane());
 
@@ -62,7 +66,6 @@ public class GameFrame extends JFrame {
         layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, turnLbl, 0, SpringLayout.HORIZONTAL_CENTER, evalPnl);
         layout.putConstraint(SpringLayout.SOUTH, turnLbl, -38, SpringLayout.NORTH, evalPnl);
 
-
         evalPnl.add(depthLbl);
         evalPnl.add(nodeLbl);
         evalPnl.add(evaluationLbl);
@@ -72,6 +75,37 @@ public class GameFrame extends JFrame {
         add(titleLbl);
         add(optionsBtn);
         add(turnLbl);
+
+        JButton[] triggers = new JButton[42];
+        for(int i = 0; i < 42; i++) {
+            triggers[i] = new JButton();
+            triggers[i].setPreferredSize(new Dimension(boardIcon.getIconWidth() / 7, boardIcon.getIconHeight() / 6));
+            triggers[i].setBorderPainted(false);
+            triggers[i].setOpaque(false);
+            triggers[i].setFocusPainted(false);
+            triggers[i].setContentAreaFilled(false);
+            if(i % 6 == 0) {
+                layout.putConstraint(SpringLayout.NORTH, triggers[i], 0, SpringLayout.NORTH, boardLbl);
+            } else {
+                layout.putConstraint(SpringLayout.NORTH, triggers[i], 0, SpringLayout.SOUTH, triggers[i - 1]);
+            }
+
+            if(i / 6 == 0) {
+                layout.putConstraint(SpringLayout.WEST, triggers[i], 0, SpringLayout.WEST, boardLbl);
+            } else {
+                layout.putConstraint(SpringLayout.WEST, triggers[i], 0, SpringLayout.EAST, triggers[i - 6]);
+            }
+            System.out.println(i);
+            int id = i;
+            triggers[i].addActionListener(e -> {
+                if(gameManager != null) {
+                    gameManager.makeMove(id / 6);
+                    printBoard(gameManager.board);
+                }
+
+            });
+            add(triggers[i]);
+        }
 
 
     }

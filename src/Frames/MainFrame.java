@@ -1,10 +1,9 @@
+package Frames;
+
 import UI.RoundedButton;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class MainFrame extends JFrame {
 
@@ -26,10 +25,22 @@ public class MainFrame extends JFrame {
 
         SpringLayout layout = new SpringLayout();
         layout.putConstraint(SpringLayout.HORIZONTAL_CENTER, titleLbl, 0, SpringLayout.HORIZONTAL_CENTER, getContentPane());
-        layout.getConstraints(titleLbl).setY(Spring.constant(72));
+        layout.putConstraint(SpringLayout.NORTH, titleLbl, 72, SpringLayout.NORTH, getContentPane());
 
         JButton singleplayerBtn = createButton("Singleplayer");
+        singleplayerBtn.addActionListener(e -> {
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            JFrame frame = new GameFrame(width, height, true);
+            frame.setVisible(true);
+            dispose();
+        });
         JButton multiplayerBtn = createButton("Multiplayer");
+        multiplayerBtn.addActionListener(e -> {
+            setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+            JFrame frame = new GameFrame(width, height, false);
+            frame.setVisible(true);
+            dispose();
+        });
         JButton analysisBtn = createButton("Analysis");
         JButton quitBtn = createButton("Quit");
         quitBtn.addActionListener(e -> {

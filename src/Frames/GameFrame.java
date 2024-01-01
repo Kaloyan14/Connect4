@@ -6,7 +6,12 @@ import UI.RoundedButton;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
+import java.awt.desktop.ScreenSleepEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
+import static Frames.Utils.Constants.COLOR;
+import static Frames.Utils.Constants.SIDE;
 import static Frames.Utils.printBoard;
 
 public class GameFrame extends JFrame {
@@ -21,7 +26,6 @@ public class GameFrame extends JFrame {
         setLocationRelativeTo(null);
         SpringLayout layout = new SpringLayout();
         setLayout(layout);
-
 
         ImageIcon boardIcon = new ImageIcon("resources/board.png");
         JLabel boardLbl = new JLabel(boardIcon);
@@ -76,36 +80,42 @@ public class GameFrame extends JFrame {
         add(optionsBtn);
         add(turnLbl);
 
-        JButton[] triggers = new JButton[42];
+        Circle[] panels = new Circle[42];
         for(int i = 0; i < 42; i++) {
-            triggers[i] = new JButton();
-            triggers[i].setPreferredSize(new Dimension(boardIcon.getIconWidth() / 7, boardIcon.getIconHeight() / 6));
-            triggers[i].setBorderPainted(false);
-            triggers[i].setOpaque(false);
-            triggers[i].setFocusPainted(false);
-            triggers[i].setContentAreaFilled(false);
+            panels[i] = new Circle(boardIcon.getIconWidth() / 7, boardIcon.getIconHeight() / 6, Color.WHITE);
             if(i % 6 == 0) {
-                layout.putConstraint(SpringLayout.NORTH, triggers[i], 0, SpringLayout.NORTH, boardLbl);
+                layout.putConstraint(SpringLayout.NORTH, panels[i], 0, SpringLayout.NORTH, boardLbl);
             } else {
-                layout.putConstraint(SpringLayout.NORTH, triggers[i], 0, SpringLayout.SOUTH, triggers[i - 1]);
+                layout.putConstraint(SpringLayout.NORTH, panels[i], 0, SpringLayout.SOUTH, panels[i - 1]);
             }
 
             if(i / 6 == 0) {
-                layout.putConstraint(SpringLayout.WEST, triggers[i], 0, SpringLayout.WEST, boardLbl);
+                layout.putConstraint(SpringLayout.WEST, panels[i], 0, SpringLayout.WEST, boardLbl);
             } else {
-                layout.putConstraint(SpringLayout.WEST, triggers[i], 0, SpringLayout.EAST, triggers[i - 6]);
+                layout.putConstraint(SpringLayout.WEST, panels[i], 0, SpringLayout.EAST, panels[i - 6]);
             }
-            System.out.println(i);
-            int id = i;
-            triggers[i].addActionListener(e -> {
-                if(gameManager != null) {
-                    gameManager.makeMove(id / 6);
-                    printBoard(gameManager.board);
-                }
-
-            });
-            add(triggers[i]);
+            add(panels[i]);
         }
+
+        boardLbl.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                int x = e.getX();
+                int y = e.getY();
+
+                int id = (y * 6 / boardIcon.getIconHeight()) + 6 * (7 * x / boardIcon.getIconWidth());
+                System.out.println(id);
+                int position = -1;
+                if(gameManager != null) {
+                    position = gameManager.makeMove(id / 6);
+                }
+                if(position >= 0) {
+                    panels[position].setColor(Utils.Constants.COLOR[(int)(1 - gameManager.board[SIDE])]);
+                    panels[position].repaint();
+                    //boardLbl.repaint();
+                }
+            }
+        });
 
 
     }

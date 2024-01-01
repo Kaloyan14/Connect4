@@ -1,5 +1,7 @@
 package Frames;
 
+import java.awt.*;
+
 public class Utils {
 
     public static class Constants {
@@ -18,6 +20,7 @@ public class Utils {
         public final static int SIDE_A = 0;
         public final static int SIDE_B = 1;
         public final static int SIDE = 2;
+        public static final Color[] COLOR = new Color[]{Color.RED, Color.YELLOW};
 
     }
 

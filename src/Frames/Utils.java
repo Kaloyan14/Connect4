@@ -2,6 +2,9 @@ package Frames;
 
 import java.awt.*;
 
+import static Frames.Utils.Constants.COL;
+import static Frames.Utils.Constants.ROW;
+
 public class Utils {
 
     public static class Constants {
@@ -41,6 +44,16 @@ public class Utils {
         }
         System.out.println(board[2] + "'s turn");
     }
+
+    public static boolean checkWin(long[] board, int side) {
+        long rows = board[side] & (board[side] >> 6) & (board[side] >> 12) & (board[side] >> 18) & ~COL[5] & ~COL[4] & ~COL[3];
+        printBoard(new long[]{rows, 0, 0});
+        long cols = board[side] & (board[side] << 1) & (board[side] << 2) & (board[side] << 3) & ~COL[5] & ~COL[4] & ~COL[3];
+        long up = board[side] & (board[side] << 5) & (board[side] << 10) & (board[side] << 15) & ~ROW[5] & ~ROW[4] & ~ROW[3];
+        long down = board[side] & (board[side] << 7) & (board[side] << 14) & (board[side] << 21) & ~ROW[5] & ~ROW[4] & ~ROW[3];
+        return ((rows | cols | up | down) != 0);
+    }
+
 
     public static int bitscan(long n) {
         final long debruijn64 = 0x07EDD5E59A4E28C2L;

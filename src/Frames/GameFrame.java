@@ -108,11 +108,16 @@ public class GameFrame extends JFrame {
                 int position = -1;
                 if(gameManager != null) {
                     position = gameManager.makeMove(id / 6);
+
                 }
                 if(position >= 0) {
                     panels[position].setColor(Utils.Constants.COLOR[(int)(1 - gameManager.board[SIDE])]);
                     panels[position].repaint();
                     //boardLbl.repaint();
+                }
+
+                if(Utils.checkWin(gameManager.board, (int)(1 - gameManager.board[SIDE]))) {
+                    JOptionPane.showMessageDialog(getContentPane(), (1 - gameManager.board[SIDE]) + " wins!!");
                 }
             }
         });

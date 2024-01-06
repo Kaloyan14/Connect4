@@ -2,14 +2,29 @@ package Frames;
 
 import java.awt.*;
 
-import static Frames.Utils.Constants.COL;
-import static Frames.Utils.Constants.ROW;
+import static Frames.Utils.Constants.*;
 
 public class Utils {
 
     public static class Constants {
-        public final static long[] ROW = new long[]{0b1000001000001000001000001000001000001L, 0b10000010000010000010000010000010000010L, 0b100000100000100000100000100000100000100L, 0b1000001000001000001000001000001000001000L, 0b10000010000010000010000010000010000010000L, 0b100000100000100000100000100000100000100000L};
-        public final static long[] COL = new long[]{0b111111L, 0b111111000000L, 0b111111000000000000L, 0b111111000000000000000000L, 0b111111000000000000000000000000L, 0b111111000000000000000000000000000000L, 0b111111000000000000000000000000000000000000L};
+        public final static long[] ROW = new long[]{
+                0b100000100000100000100000100000100000100000L,
+                0b10000010000010000010000010000010000010000L,
+                0b1000001000001000001000001000001000001000L,
+                0b100000100000100000100000100000100000100L,
+                0b10000010000010000010000010000010000010L,
+                0b1000001000001000001000001000001000001L
+        };
+        public final static long[] COL = new long[]{
+                0b111111L,
+                0b111111000000L,
+                0b111111000000000000L,
+                0b111111000000000000000000L,
+                0b111111000000000000000000000000L,
+                0b111111000000000000000000000000000000L,
+                0b111111000000000000000000000000000000000000L
+        };
+        public final static long DRAW = 0b111111111111111111111111111111111111111111L;
         public final static int[] INDEX64 = new int[]{
             63,  0, 58,  1, 59, 47, 53,  2,
             60, 39, 48, 27, 54, 33, 42,  3,
@@ -46,14 +61,20 @@ public class Utils {
     }
 
     public static boolean checkWin(long[] board, int side) {
-        long rows = board[side] & (board[side] >> 6) & (board[side] >> 12) & (board[side] >> 18) & ~COL[5] & ~COL[4] & ~COL[3];
-        printBoard(new long[]{rows, 0, 0});
-        long cols = board[side] & (board[side] << 1) & (board[side] << 2) & (board[side] << 3) & ~COL[5] & ~COL[4] & ~COL[3];
-        long up = board[side] & (board[side] << 5) & (board[side] << 10) & (board[side] << 15) & ~ROW[5] & ~ROW[4] & ~ROW[3];
-        long down = board[side] & (board[side] << 7) & (board[side] << 14) & (board[side] << 21) & ~ROW[5] & ~ROW[4] & ~ROW[3];
+        long rows = board[side] & (board[side] >> 6) & (board[side] >> 12) & (board[side] >> 18) & ~COL[6] & ~COL[5] & ~COL[4];
+        //printBoard(new long[]{rows, 0, 0});
+        long cols = board[side] & (board[side] << 1) & (board[side] << 2) & (board[side] << 3) & ~ROW[5] & ~ROW[4] & ~ROW[3];
+        //printBoard(new long[]{cols, 0, 0});
+        long up = board[side] & (board[side] >> 5) & (board[side] >> 10) & (board[side] >> 15) & ~ROW[5] & ~ROW[4] & ~ROW[3] & ~COL[6] & ~COL[5] & ~COL[4];
+        //printBoard(new long[]{up, 0, 0});
+        long down = board[side] & (board[side] << 7) & (board[side] << 14) & (board[side] << 21)  & ~ROW[5] & ~ROW[4] & ~ROW[3] & ~COL[2] & ~COL[1] & ~COL[0];
+        //printBoard(new long[]{down, 0, 0});
         return ((rows | cols | up | down) != 0);
     }
 
+    public static boolean checkDraw(long[] board) {
+        return ((board[SIDE_A] | board[SIDE_B]) == DRAW);
+    }
 
     public static int bitscan(long n) {
         final long debruijn64 = 0x07EDD5E59A4E28C2L;

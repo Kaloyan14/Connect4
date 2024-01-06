@@ -4,15 +4,12 @@ import UI.RoundedBorder;
 import UI.RoundedButton;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.desktop.ScreenSleepEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import static Frames.Utils.Constants.COLOR;
-import static Frames.Utils.Constants.SIDE;
-import static Frames.Utils.printBoard;
+import static Frames.Utils.Constants.*;
+import static Frames.Utils.*;
 
 public class GameFrame extends JFrame {
     private final boolean singleplayer;
@@ -80,6 +77,8 @@ public class GameFrame extends JFrame {
         add(optionsBtn);
         add(turnLbl);
 
+
+
         Circle[] panels = new Circle[42];
         for(int i = 0; i < 42; i++) {
             panels[i] = new Circle(boardIcon.getIconWidth() / 7, boardIcon.getIconHeight() / 6, Color.WHITE);
@@ -116,8 +115,21 @@ public class GameFrame extends JFrame {
                     //boardLbl.repaint();
                 }
 
-                if(Utils.checkWin(gameManager.board, (int)(1 - gameManager.board[SIDE]))) {
-                    JOptionPane.showMessageDialog(getContentPane(), (1 - gameManager.board[SIDE]) + " wins!!");
+                if(gameManager != null) {
+                    if (checkWin(gameManager.board, (int) (1 - gameManager.board[SIDE]))) {
+                        JOptionPane.showMessageDialog(getContentPane(), (1 - gameManager.board[SIDE]) + " wins");
+                        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+                        MainFrame frame = new MainFrame(width, height);
+                        frame.setVisible(true);
+                        dispose();
+                    }
+                    if(checkDraw(gameManager.board)) {
+                        JOptionPane.showMessageDialog(getContentPane(), "Draw");
+                        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+                        MainFrame frame = new MainFrame(width, height);
+                        frame.setVisible(true);
+                        dispose();
+                    }
                 }
             }
         });

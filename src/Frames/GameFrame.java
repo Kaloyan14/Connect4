@@ -4,6 +4,7 @@ import UI.RoundedBorder;
 import UI.RoundedButton;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -24,10 +25,16 @@ public class GameFrame extends JFrame {
         SpringLayout layout = new SpringLayout();
         setLayout(layout);
 
+        JPanel boardPnl = new JPanel();
+        boardPnl.setLayout(null);
         ImageIcon boardIcon = new ImageIcon("resources/board.png");
         JLabel boardLbl = new JLabel(boardIcon);
-        layout.putConstraint(SpringLayout.NORTH, boardLbl, 150, SpringLayout.NORTH, getContentPane());
-        layout.putConstraint(SpringLayout.EAST, boardLbl, -264, SpringLayout.EAST, getContentPane());
+        layout.putConstraint(SpringLayout.NORTH, boardPnl, 0, SpringLayout.NORTH, getContentPane());
+        layout.putConstraint(SpringLayout.EAST, boardPnl, -264, SpringLayout.EAST, getContentPane());
+        boardPnl.setPreferredSize(new Dimension(boardIcon.getIconWidth(), height));
+        boardLbl.setBounds(0, 150, boardIcon.getIconWidth(), boardIcon.getIconHeight());
+        boardPnl.add(boardLbl);
+        boardPnl.setComponentZOrder(boardLbl, 0);
 
         JPanel evalPnl = new JPanel();
         SpringLayout layoutPnl = new SpringLayout();
@@ -71,7 +78,7 @@ public class GameFrame extends JFrame {
         evalPnl.add(nodeLbl);
         evalPnl.add(evaluationLbl);
 
-        add(boardLbl);
+        add(boardPnl);
         add(evalPnl);
         add(titleLbl);
         add(optionsBtn);
@@ -82,18 +89,8 @@ public class GameFrame extends JFrame {
         Circle[] panels = new Circle[42];
         for(int i = 0; i < 42; i++) {
             panels[i] = new Circle(boardIcon.getIconWidth() / 7, boardIcon.getIconHeight() / 6, Color.WHITE);
-            if(i % 6 == 0) {
-                layout.putConstraint(SpringLayout.NORTH, panels[i], 0, SpringLayout.NORTH, boardLbl);
-            } else {
-                layout.putConstraint(SpringLayout.NORTH, panels[i], 0, SpringLayout.SOUTH, panels[i - 1]);
-            }
-
-            if(i / 6 == 0) {
-                layout.putConstraint(SpringLayout.WEST, panels[i], 0, SpringLayout.WEST, boardLbl);
-            } else {
-                layout.putConstraint(SpringLayout.WEST, panels[i], 0, SpringLayout.EAST, panels[i - 6]);
-            }
-            add(panels[i]);
+            panels[i].setBounds((i / 6) * boardIcon.getIconWidth() / 7, 150 + (i % 6) * boardIcon.getIconHeight() / 6, boardIcon.getIconWidth() / 7, boardIcon.getIconHeight() / 6);
+            boardPnl.add(panels[i]);
         }
 
         boardLbl.addMouseListener(new MouseAdapter() {
@@ -111,8 +108,11 @@ public class GameFrame extends JFrame {
                 }
                 if(position >= 0) {
                     panels[position].setColor(Utils.Constants.COLOR[(int)(1 - gameManager.board[SIDE])]);
-                    panels[position].repaint();
-                    //boardLbl.repaint();
+                    try {
+                        panels[position].animate();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
 
                 if(gameManager != null) {

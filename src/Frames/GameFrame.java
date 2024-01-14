@@ -8,15 +8,17 @@ import javax.swing.border.BevelBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
+import static Frames.Evaluate.alphaBetaSoft;
+import static Frames.Evaluate.validMoves;
 import static Frames.Utils.Constants.*;
 import static Frames.Utils.*;
 
 public class GameFrame extends JFrame {
-    private final boolean singleplayer;
     private static GameManager gameManager;
     public GameFrame(int width, int height, boolean singleplayer) {
-        this.singleplayer = singleplayer;
+        final int DEPTH = 10;
         gameManager = new GameManager();
         setTitle("Connect 4");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -44,11 +46,11 @@ public class GameFrame extends JFrame {
         layout.putConstraint(SpringLayout.NORTH, evalPnl, 150, SpringLayout.NORTH, getContentPane());
         layout.putConstraint(SpringLayout.WEST, evalPnl, 38, SpringLayout.WEST, getContentPane());
 
-        JLabel depthLbl = new JLabel("Depth: ");
+        JLabel depthLbl = new JLabel("Depth: " + DEPTH);
         depthLbl.setFont(new Font("Arial", Font.PLAIN, 32));
-        JLabel nodeLbl = new JLabel("Nodes: ");
+        JLabel nodeLbl = new JLabel("Nodes: 0");
         nodeLbl.setFont(new Font("Arial", Font.PLAIN, 32));
-        JLabel evaluationLbl = new JLabel("Evaluation: ");
+        JLabel evaluationLbl = new JLabel("Evaluation: 0");
         evaluationLbl.setFont(new Font("Arial", Font.PLAIN, 32));
 
         layoutPnl.putConstraint(SpringLayout.NORTH, depthLbl, 36, SpringLayout.SOUTH, getContentPane());
@@ -104,15 +106,38 @@ public class GameFrame extends JFrame {
                 int position = -1;
                 if(gameManager != null) {
                     position = gameManager.makeMove(id / 6);
-
                 }
                 if(position >= 0) {
                     panels[position].setColor(Utils.Constants.COLOR[(int)(1 - gameManager.board[SIDE])]);
-                    try {
-                        panels[position].animate();
-                    } catch (InterruptedException ex) {
-                        throw new RuntimeException(ex);
+                    //panels[position].animate();
+                    panels[position].repaint();
+                    if(singleplayer) {
+                        if (checkWin(gameManager.board, (int) (1 - gameManager.board[SIDE]))) {
+                            JOptionPane.showMessageDialog(getContentPane(), (1 - gameManager.board[SIDE]) + " wins");
+                            setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+                            MainFrame frame = new MainFrame(width, height);
+                            frame.setVisible(true);
+                            dispose();
+                        }
+                        else if(checkDraw(gameManager.board)) {
+                            JOptionPane.showMessageDialog(getContentPane(), "Draw");
+                            setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+                            MainFrame frame = new MainFrame(width, height);
+                            frame.setVisible(true);
+                            dispose();
+                        }
+                        else {
+                            Pair<Integer, Integer> mv = alphaBetaSoft(Arrays.copyOf(gameManager.board, 3), DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
+                            int move = gameManager.makeMove(mv.second);
+                            System.out.println("Move: " + move);
+                            evaluationLbl.setText("Evaluation: " + mv.first);
+                            nodeLbl.setText("Nodes: " + Evaluate.nodes);
+                            Evaluate.nodes = 0;
+                            panels[move].setColor(Utils.Constants.COLOR[(int) (1 - gameManager.board[SIDE])]);
+                            panels[move].repaint();
+                        }
                     }
+                    //printBoard(gameManager.board);
                 }
 
                 if(gameManager != null) {

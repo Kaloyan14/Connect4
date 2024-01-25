@@ -17,8 +17,9 @@ import static Frames.Utils.*;
 
 public class GameFrame extends JFrame {
     private static GameManager gameManager;
+    int DEPTH = 8;
+    boolean enableEval = false;
     public GameFrame(int width, int height, boolean singleplayer) {
-        final int DEPTH = 10;
         gameManager = new GameManager();
         setTitle("Connect 4");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -46,11 +47,12 @@ public class GameFrame extends JFrame {
         layout.putConstraint(SpringLayout.NORTH, evalPnl, 150, SpringLayout.NORTH, getContentPane());
         layout.putConstraint(SpringLayout.WEST, evalPnl, 38, SpringLayout.WEST, getContentPane());
 
-        JLabel depthLbl = new JLabel("Depth: " + DEPTH);
+
+        JLabel depthLbl = new JLabel("Depth: " + (enableEval ? DEPTH : ""));
         depthLbl.setFont(new Font("Arial", Font.PLAIN, 32));
-        JLabel nodeLbl = new JLabel("Nodes: 0");
+        JLabel nodeLbl = new JLabel("Nodes: " + (enableEval ? 0 : ""));
         nodeLbl.setFont(new Font("Arial", Font.PLAIN, 32));
-        JLabel evaluationLbl = new JLabel("Evaluation: 0");
+        JLabel evaluationLbl = new JLabel("Evaluation: " + (enableEval ? 0 : ""));
         evaluationLbl.setFont(new Font("Arial", Font.PLAIN, 32));
 
         layoutPnl.putConstraint(SpringLayout.NORTH, depthLbl, 36, SpringLayout.SOUTH, getContentPane());
@@ -67,6 +69,62 @@ public class GameFrame extends JFrame {
         JLabel optionsLbl = new JLabel(optionsIcon);
         JButton optionsBtn = new RoundedButton(optionsLbl, 10, new Color(0xFFFFFF));
         optionsBtn.setPreferredSize(new Dimension(optionsIcon.getIconWidth() + 5, optionsIcon.getIconHeight() + 5));
+        optionsBtn.addActionListener(e -> {
+            JDialog optionsDlg = new JDialog((JFrame) SwingUtilities.getRoot(this), "Options");
+            optionsDlg.setLocationRelativeTo(null);
+            optionsDlg.setSize(new Dimension(512, 512));
+            SpringLayout dlgLayout = new SpringLayout();
+            optionsDlg.setLayout(dlgLayout);
+            JLabel changeDepthLbl = new JLabel("Depth: ");
+            changeDepthLbl.setFont(new Font("Arial", Font.PLAIN, 18));
+            JTextField depthFtf = new JTextField();
+            depthFtf.setPreferredSize(new Dimension(100, 20));
+            dlgLayout.putConstraint(SpringLayout.NORTH, changeDepthLbl, 24,SpringLayout.NORTH, optionsDlg);
+            dlgLayout.putConstraint(SpringLayout.WEST, changeDepthLbl, 24,SpringLayout.WEST, optionsDlg);
+            dlgLayout.putConstraint(SpringLayout.NORTH, depthFtf, 24,SpringLayout.NORTH, optionsDlg);
+            dlgLayout.putConstraint(SpringLayout.WEST, depthFtf, 24,SpringLayout.EAST, changeDepthLbl);
+            JLabel enableEvalLbl = new JLabel("Enable evaluation");
+            enableEvalLbl.setFont(new Font("Arial", Font.PLAIN, 18));
+            JCheckBox toggleEval = new JCheckBox();
+            toggleEval.setSelected(enableEval);
+            dlgLayout.putConstraint(SpringLayout.NORTH, enableEvalLbl, 48,SpringLayout.NORTH, changeDepthLbl);
+            dlgLayout.putConstraint(SpringLayout.WEST, enableEvalLbl, 24,SpringLayout.WEST, optionsDlg);
+            dlgLayout.putConstraint(SpringLayout.NORTH, toggleEval, 48, SpringLayout.NORTH, changeDepthLbl);
+            dlgLayout.putConstraint(SpringLayout.WEST, toggleEval, 24, SpringLayout.EAST, enableEvalLbl);
+            RoundedButton applyBtn = new RoundedButton("Apply", 10, new Color(0xFFFFFF));
+            applyBtn.setPreferredSize(new Dimension(100, 40));
+            dlgLayout.putConstraint(SpringLayout.WEST, applyBtn, 206, SpringLayout.WEST, optionsDlg);
+            dlgLayout.putConstraint(SpringLayout.NORTH, applyBtn, 400, SpringLayout.NORTH, optionsDlg);
+            applyBtn.addActionListener(el -> {
+                try {
+                    DEPTH = Math.min(Integer.parseInt(depthFtf.getText()), 12);
+                    depthLbl.setText("Depth: " + DEPTH);
+                } catch(Exception ignored) {}
+                System.out.println(DEPTH);
+                enableEval = toggleEval.isSelected();
+                if(enableEval) {
+                    depthLbl.setText("Depth: " + DEPTH);
+                    nodeLbl.setText("Nodes: " + Evaluate.nodes);
+                }
+                else {
+                    depthLbl.setText("Depth: ");
+                    nodeLbl.setText("Nodes: ");
+                    evaluationLbl.setText("Evaluation: ");
+
+                }
+                optionsDlg.dispose();
+            });
+
+
+
+            optionsDlg.add(changeDepthLbl);
+            optionsDlg.add(depthFtf);
+            optionsDlg.add(enableEvalLbl);
+            optionsDlg.add(toggleEval);
+            optionsDlg.add(applyBtn);
+            optionsDlg.setVisible(true);
+
+        });
 
         layout.putConstraint(SpringLayout.NORTH, optionsBtn, 36, SpringLayout.NORTH, getContentPane());
         layout.putConstraint(SpringLayout.EAST, optionsBtn, -64, SpringLayout.EAST, getContentPane());
@@ -129,9 +187,10 @@ public class GameFrame extends JFrame {
                         else {
                             Pair<Integer, Integer> mv = alphaBetaSoft(Arrays.copyOf(gameManager.board, 3), DEPTH, Integer.MIN_VALUE, Integer.MAX_VALUE, false);
                             int move = gameManager.makeMove(mv.second);
-                            System.out.println("Move: " + move);
-                            evaluationLbl.setText("Evaluation: " + mv.first);
-                            nodeLbl.setText("Nodes: " + Evaluate.nodes);
+                            if(enableEval) {
+                                evaluationLbl.setText("Evaluation: " + mv.first);
+                                nodeLbl.setText("Nodes: " + Evaluate.nodes);
+                            }
                             Evaluate.nodes = 0;
                             panels[move].setColor(Utils.Constants.COLOR[(int) (1 - gameManager.board[SIDE])]);
                             panels[move].repaint();
@@ -158,6 +217,8 @@ public class GameFrame extends JFrame {
                 }
             }
         });
+
+
 
 
     }

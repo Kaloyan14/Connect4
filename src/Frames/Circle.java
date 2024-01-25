@@ -1,7 +1,14 @@
 package Frames;
 
+import jdk.jshell.execution.Util;
+
+import javax.print.attribute.standard.Sides;
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+
+import static Frames.Utils.Constants.COLOR;
+import static Frames.Utils.Constants.SIDE;
 
 public class Circle extends JPanel {
     private Color color;
@@ -41,7 +48,8 @@ public class Circle extends JPanel {
         for(int y = 0; y < pos; y = Math.min(y + indent, pos)) {
             System.out.println(y);
             setBounds(getX(), y, getWidth(), getHeight());
-            update(getGraphics());
+           // update(getGraphics());
+            repaint();
             Thread.sleep(10);
         }
         isPlaced = true;
